@@ -1,0 +1,6 @@
+$out_root/
+{
+  include metrohash/
+}
+
+export $out_root/metrohash/$import.target

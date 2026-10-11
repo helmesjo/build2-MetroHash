@@ -1,0 +1,3 @@
+import libs = libmetrohash%lib{metrohash}
+
+exe{driver}: {hxx cxx}{**} $libs testscript{**}
