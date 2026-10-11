@@ -2,7 +2,15 @@ intf_libs = # Interface dependencies.
 impl_libs = # Implementation dependencies.
 #import xxxx_libs += libhello%lib{hello}
 
-lib{metrohash}: libul{metrohash}: {hxx cxx}{**} $impl_libs $intf_libs
+lib{metrohash}: libul{metrohash}: hxx{**} cxx{** -metrohash128crc} \
+                                  $impl_libs $intf_libs
+
+# The CRC variants (metrohash128crc_*()) use the SSE4.2 CRC32 instruction and
+# are only built for x86_64.
+#
+x86_64 = ($cxx.target.cpu == 'x86_64')
+
+libul{metrohash}: cxx{metrohash128crc}: include = $x86_64
 
 libs{metrohash}: def{metrohash}: include = ($cxx.target.system == 'win32-msvc')
 def{metrohash}: libul{metrohash}
@@ -13,6 +21,14 @@ cxx.poptions =+ "-I$out_root" "-I$src_root"
 
 if ($cxx.target.system == 'mingw32')
   cxx.loptions += -Wl,--export-all-symbols
+
+# GCC and Clang only make the SSE4.2 intrinsics available with -msse4.2
+# (MSVC makes them available unconditionally). Enable it for the CRC
+# variants translation unit only so that the rest of the library does not
+# require SSE4.2.
+#
+if ($x86_64 && ($cxx.class == 'gcc' || $cxx.id == 'msvc-clang'))
+  obj{metrohash128crc}: cxx.coptions += -msse4.2
 
 # Export options.
 #
