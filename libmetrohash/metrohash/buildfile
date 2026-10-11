@@ -55,3 +55,7 @@ hxx{*}:
   install         = include/metrohash/
   install.subdirs = true
 }
+
+# Don't install private headers.
+#
+hxx{platform}@./: install = false
